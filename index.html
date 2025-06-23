@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌐 VAX Reboot: Immunity Grid</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+    <div class="game-container">
+        <!-- Header -->
+        <header class="game-header">
+            <div class="header-content">
+                <h1 class="game-title">🌐 VAX Reboot: Immunity Grid</h1>
+                <p class="game-subtitle">A strategy game about networks, outbreaks, and the power of public health</p>
+                <div class="scenario-controls">
+                    <label for="scenario-select" class="form-label">Choose Scenario:</label>
+                    <select id="scenario-select" class="form-control scenario-select">
+                        <option value="">Select a scenario...</option>
+                    </select>
+                    <button id="new-game-btn" class="btn btn--primary" disabled>New Game</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Game Area -->
+        <main class="game-main">
+            <!-- Left Sidebar - Tools -->
+            <aside class="sidebar-left">
+                <div class="tools-panel">
+                    <h3>🛠️ Public Health Tools</h3>
+                    <div class="tools-grid" id="tools-grid">
+                        <!-- Tools will be dynamically generated -->
+                    </div>
+                    
+                    <div class="game-info">
+                        <h4>📊 Game Status</h4>
+                        <div class="status-item">
+                            <span>Population:</span>
+                            <span id="total-population">50</span>
+                        </div>
+                        <div class="status-item">
+                            <span>Susceptible:</span>
+                            <span id="susceptible-count">0</span>
+                        </div>
+                        <div class="status-item">
+                            <span>Infected:</span>
+                            <span id="infected-count">0</span>
+                        </div>
+                        <div class="status-item">
+                            <span>Vaccinated:</span>
+                            <span id="vaccinated-count">0</span>
+                        </div>
+                        <div class="status-item">
+                            <span>Recovered:</span>
+                            <span id="recovered-count">0</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Network Visualization -->
+            <section class="network-container">
+                <div class="network-header">
+                    <h3 id="scenario-title">Select a scenario to begin</h3>
+                    <div class="simulation-controls">
+                        <button id="start-sim-btn" class="btn btn--primary" disabled>Start Simulation</button>
+                        <button id="pause-sim-btn" class="btn btn--secondary" disabled>Pause</button>
+                        <button id="reset-sim-btn" class="btn btn--outline" disabled>Reset</button>
+                        <div class="speed-control">
+                            <label for="speed-slider">Speed:</label>
+                            <input type="range" id="speed-slider" min="0.5" max="3" step="0.5" value="1">
+                            <span id="speed-value">1x</span>
+                        </div>
+                    </div>
+                </div>
+                <div id="network-svg-container">
+                    <svg id="network-svg"></svg>
+                </div>
+                <div class="legend">
+                    <h4>Legend:</h4>
+                    <div class="legend-items" id="legend-items">
+                        <!-- Legend will be dynamically generated -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Sidebar - Info -->
+            <aside class="sidebar-right">
+                <div class="info-panel">
+                    <h3>📋 Scenario Info</h3>
+                    <div id="scenario-description">
+                        <p>Select a scenario to see details about the outbreak situation and network structure.</p>
+                    </div>
+                    
+                    <div class="selected-node-info" id="selected-node-info" style="display: none;">
+                        <h4>👤 Selected Person</h4>
+                        <div id="node-details"></div>
+                    </div>
+
+                    <div class="action-log">
+                        <h4>📝 Action Log</h4>
+                        <div id="action-log-content">
+                            <p>Game actions will appear here...</p>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </main>
+
+        <!-- Results Modal -->
+        <div id="results-modal" class="modal-overlay" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>📈 Outbreak Results</h2>
+                    <button id="close-results" class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body" id="results-content">
+                    <!-- Results will be populated here -->
+                </div>
+                <div class="modal-footer">
+                    <button id="replay-btn" class="btn btn--primary">Play Again</button>
+                    <button id="new-scenario-btn" class="btn btn--secondary">Try New Scenario</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Instructions Modal -->
+        <div id="instructions-modal" class="modal-overlay">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>🎯 How to Play</h2>
+                    <button id="close-instructions" class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="instructions-content">
+                        <h3>🧠 Objective</h3>
+                        <p>Prevent a simulated outbreak from infecting the network by strategically using limited public health tools.</p>
+                        
+                        <h3>🛠️ Tools Available</h3>
+                        <ul>
+                            <li><strong>💉 Vaccinate:</strong> Prevents infection and transmission</li>
+                            <li><strong>🚫 Quarantine:</strong> Isolates a person from others</li>
+                            <li><strong>🔗 Sever Link:</strong> Breaks connections between people</li>
+                            <li><strong>🧪 Rapid Test:</strong> Reveals if person is infected</li>
+                            <li><strong>📞 Contact Trace:</strong> Shows all contacts of selected person</li>
+                        </ul>
+                        
+                        <h3>🕹️ How to Play</h3>
+                        <ol>
+                            <li>Select a scenario from the dropdown</li>
+                            <li>Click on people (nodes) to use tools</li>
+                            <li>Use tools strategically before starting simulation</li>
+                            <li>Click "Start Simulation" to begin outbreak</li>
+                            <li>Continue using tools during the outbreak</li>
+                            <li>Try to minimize infections with limited resources</li>
+                        </ol>
+                        
+                        <h3>🎨 Color Legend</h3>
+                        <ul>
+                            <li><span class="color-box" style="background: #4A90E2;"></span> Susceptible (vulnerable)</li>
+                            <li><span class="color-box" style="background: #7ED321;"></span> Vaccinated (protected)</li>
+                            <li><span class="color-box" style="background: #F5A623;"></span> Exposed (recently infected)</li>
+                            <li><span class="color-box" style="background: #D0021B;"></span> Infected (spreading virus)</li>
+                            <li><span class="color-box" style="background: #9013FE;"></span> Quarantined (isolated)</li>
+                            <li><span class="color-box" style="background: #8E8E93;"></span> Recovered (immune)</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="start-playing" class="btn btn--primary">Start Playing!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
